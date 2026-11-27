@@ -39,6 +39,7 @@ import com.example.myapplication.ui.theme.ProfilDeveloppeurTheme
 fun ProfileScreen(
     uiState: ProfileUiState,
     onSearchQueryChange: (String) -> Unit,
+    onToggleFavoriteFilter: () -> Unit,
     onFavoriteClick: (Int) -> Unit,
     onContactClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -84,6 +85,17 @@ fun ProfileScreen(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                }
+                item {
+                    Button(onClick = onToggleFavoriteFilter) {
+                        Text(
+                            text = if (uiState.showOnlyFavorites) {
+                                "Afficher tous les projets"
+                            } else {
+                                "Afficher uniquement les favoris"
+                            },
+                        )
+                    }
                 }
                 items(uiState.projects, key = { it.id }) { project ->
                     ProjectCard(
@@ -157,6 +169,7 @@ private fun ProfileScreenLightPreview() {
                 projects = sampleProfile.projects,
             ),
             onSearchQueryChange = { },
+            onToggleFavoriteFilter = { },
             onFavoriteClick = { },
             onContactClick = { },
         )
@@ -179,6 +192,7 @@ private fun ProfileScreenDarkPreview() {
                 favoriteProjectIds = setOf(1, 4),
             ),
             onSearchQueryChange = { },
+            onToggleFavoriteFilter = { },
             onFavoriteClick = { },
             onContactClick = { },
         )

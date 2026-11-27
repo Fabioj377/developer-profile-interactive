@@ -17,6 +17,7 @@ fun ProfileContainer(
     ProfileScreen(
         uiState = uiState,
         onSearchQueryChange = viewModel::onSearchQueryChange,
+        onToggleFavoriteFilter = viewModel::onToggleFavoriteFilter,
         onFavoriteClick = viewModel::onFavoriteClick,
         onContactClick = onContactClick,
         modifier = modifier,
