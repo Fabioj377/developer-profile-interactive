@@ -16,10 +16,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import com.example.myapplication.ui.theme.ProfilDeveloppeurTheme
 @Composable
 fun ProfileScreen(
     uiState: ProfileUiState,
+    onSearchQueryChange: (String) -> Unit,
     onFavoriteClick: (Int) -> Unit,
     onContactClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -71,6 +74,17 @@ fun ProfileScreen(
                 }
 
                 item { SectionTitle("Projets") }
+                item {
+                    OutlinedTextField(
+                        value = uiState.searchQuery,
+                        onValueChange = onSearchQueryChange,
+                        label = { Text("Rechercher un projet") },
+                        placeholder = { Text("Titre, technologie…") },
+                        leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 items(uiState.projects, key = { it.id }) { project ->
                     ProjectCard(
                         project = project,
@@ -142,6 +156,7 @@ private fun ProfileScreenLightPreview() {
                 profile = sampleProfile,
                 projects = sampleProfile.projects,
             ),
+            onSearchQueryChange = { },
             onFavoriteClick = { },
             onContactClick = { },
         )
@@ -163,6 +178,7 @@ private fun ProfileScreenDarkPreview() {
                 projects = sampleProfile.projects,
                 favoriteProjectIds = setOf(1, 4),
             ),
+            onSearchQueryChange = { },
             onFavoriteClick = { },
             onContactClick = { },
         )
