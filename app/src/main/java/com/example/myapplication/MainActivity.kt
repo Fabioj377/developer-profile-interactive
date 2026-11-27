@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.myapplication.data.sampleProfile
-import com.example.myapplication.ui.ProfileScreen
+import com.example.myapplication.ui.ProfileContainer
 import com.example.myapplication.ui.theme.ProfilDeveloppeurTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,8 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ProfilDeveloppeurTheme {
-                ProfileScreen(
-                    profile = sampleProfile,
+                ProfileContainer(
                     onContactClick = {
                     },
                 )

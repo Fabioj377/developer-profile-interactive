@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.data.DeveloperProfile
 import com.example.myapplication.data.sampleProfile
 import com.example.myapplication.ui.components.ContactCard
 import com.example.myapplication.ui.components.ProfileHeader
@@ -36,10 +35,13 @@ import com.example.myapplication.ui.theme.ProfilDeveloppeurTheme
 
 @Composable
 fun ProfileScreen(
-    profile: DeveloperProfile,
+    uiState: ProfileUiState,
+    onFavoriteClick: (Int) -> Unit,
     onContactClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val profile = uiState.profile
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
@@ -69,11 +71,11 @@ fun ProfileScreen(
                 }
 
                 item { SectionTitle("Projets") }
-                items(profile.projects, key = { it.id }) { project ->
+                items(uiState.projects, key = { it.id }) { project ->
                     ProjectCard(
                         project = project,
-                        isFavorite = false, // sera branché sur l'état à l'étape suivante
-                        onFavoriteClick = { },
+                        isFavorite = project.id in uiState.favoriteProjectIds,
+                        onFavoriteClick = { onFavoriteClick(project.id) },
                     )
                 }
 
@@ -135,7 +137,14 @@ private fun ContactBar(onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun ProfileScreenLightPreview() {
     ProfilDeveloppeurTheme(darkTheme = false) {
-        ProfileScreen(profile = sampleProfile, onContactClick = { })
+        ProfileScreen(
+            uiState = ProfileUiState(
+                profile = sampleProfile,
+                projects = sampleProfile.projects,
+            ),
+            onFavoriteClick = { },
+            onContactClick = { },
+        )
     }
 }
 
@@ -148,6 +157,14 @@ private fun ProfileScreenLightPreview() {
 @Composable
 private fun ProfileScreenDarkPreview() {
     ProfilDeveloppeurTheme(darkTheme = true) {
-        ProfileScreen(profile = sampleProfile, onContactClick = { })
+        ProfileScreen(
+            uiState = ProfileUiState(
+                profile = sampleProfile,
+                projects = sampleProfile.projects,
+                favoriteProjectIds = setOf(1, 4),
+            ),
+            onFavoriteClick = { },
+            onContactClick = { },
+        )
     }
 }
