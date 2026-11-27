@@ -203,7 +203,9 @@ private fun ProfileScreenDarkPreview() {
         ProfileScreen(
             uiState = ProfileUiState(
                 profile = sampleProfile,
-                projects = sampleProfile.projects,
+                projects = sampleProfile.projects.filter { it.id in setOf(1, 4) },
+                searchQuery = "Kotlin",
+                showOnlyFavorites = true,
                 favoriteProjectIds = setOf(1, 4),
             ),
             onSearchQueryChange = { },
