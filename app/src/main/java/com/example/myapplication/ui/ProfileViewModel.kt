@@ -6,6 +6,7 @@ import com.example.myapplication.data.sampleProfile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class ProfileViewModel : ViewModel() {
 
@@ -20,6 +21,42 @@ class ProfileViewModel : ViewModel() {
     )
 
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+
+    fun onSearchQueryChange(newQuery: String) {
+        _uiState.update { current ->
+            createState(
+                searchQuery = newQuery,
+                showOnlyFavorites = current.showOnlyFavorites,
+                favoriteProjectIds = current.favoriteProjectIds,
+            )
+        }
+    }
+
+    fun onToggleFavoriteFilter() {
+        _uiState.update { current ->
+            createState(
+                searchQuery = current.searchQuery,
+                showOnlyFavorites = !current.showOnlyFavorites,
+                favoriteProjectIds = current.favoriteProjectIds,
+            )
+        }
+    }
+
+    fun onFavoriteClick(projectId: Int) {
+        _uiState.update { current ->
+            val newFavorites = if (projectId in current.favoriteProjectIds) {
+                current.favoriteProjectIds - projectId
+            } else {
+                current.favoriteProjectIds + projectId
+            }
+            createState(
+                searchQuery = current.searchQuery,
+                showOnlyFavorites = current.showOnlyFavorites,
+                favoriteProjectIds = newFavorites,
+            )
+        }
+    }
 
     private fun createState(
         searchQuery: String,
