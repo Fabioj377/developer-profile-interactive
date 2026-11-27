@@ -83,6 +83,7 @@ private fun ProjectCardPreview() {
     ProfilDeveloppeurTheme {
         ProjectCard(
             project = Project(
+                id = 2,
                 title = "Outlook Mail Agent",
                 description = "Agent qui aide à trier et traiter des e-mails Outlook.",
                 technologies = listOf("Python", "Git"),
