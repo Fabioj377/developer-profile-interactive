@@ -12,9 +12,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,15 +33,32 @@ fun ContactCard(
     availability: String,
     modifier: Modifier = Modifier,
 ) {
+    var showContactInfo by rememberSaveable { mutableStateOf(false) }
+
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Contact", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(12.dp))
-            ReadOnlyField(label = "E-mail", value = email, icon = Icons.Filled.Email)
-            Spacer(modifier = Modifier.height(8.dp))
-            ReadOnlyField(label = "Localisation", value = location, icon = Icons.Filled.LocationOn)
-            Spacer(modifier = Modifier.height(8.dp))
-            ReadOnlyField(label = "Disponibilité", value = availability, icon = Icons.Filled.Check)
+            OutlinedButton(
+                onClick = { showContactInfo = !showContactInfo },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = if (showContactInfo) {
+                        "Masquer les informations de contact"
+                    } else {
+                        "Afficher les informations de contact"
+                    },
+                )
+            }
+            if (showContactInfo) {
+                Spacer(modifier = Modifier.height(12.dp))
+                ReadOnlyField(label = "E-mail", value = email, icon = Icons.Filled.Email)
+                Spacer(modifier = Modifier.height(8.dp))
+                ReadOnlyField(label = "Localisation", value = location, icon = Icons.Filled.LocationOn)
+                Spacer(modifier = Modifier.height(8.dp))
+                ReadOnlyField(label = "Disponibilité", value = availability, icon = Icons.Filled.Check)
+            }
         }
     }
 }
