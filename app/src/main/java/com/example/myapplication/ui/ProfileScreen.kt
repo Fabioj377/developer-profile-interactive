@@ -69,8 +69,12 @@ fun ProfileScreen(
                 }
 
                 item { SectionTitle("Projets") }
-                items(profile.projects, key = { it.title }) { project ->
-                    ProjectCard(project = project)
+                items(profile.projects, key = { it.id }) { project ->
+                    ProjectCard(
+                        project = project,
+                        isFavorite = false, // sera branché sur l'état à l'étape suivante
+                        onFavoriteClick = { },
+                    )
                 }
 
                 item {

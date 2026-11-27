@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,9 +25,15 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.data.Project
 import com.example.myapplication.ui.theme.ProfilDeveloppeurTheme
 
+/**
+ * Composable stateless : l'état favori est reçu en paramètre,
+ * et le clic sur le cœur est simplement signalé au parent.
+ */
 @Composable
 fun ProjectCard(
     project: Project,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -39,14 +45,18 @@ fun ProjectCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Star,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp),
+                Text(
+                    text = project.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = project.title, style = MaterialTheme.typography.titleMedium)
+                IconButton(onClick = onFavoriteClick) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Retirer des favoris" else "Ajouter aux favoris",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = project.description, style = MaterialTheme.typography.bodyMedium)
@@ -88,6 +98,8 @@ private fun ProjectCardPreview() {
                 description = "Agent qui aide à trier et traiter des e-mails Outlook.",
                 technologies = listOf("Python", "Git"),
             ),
+            isFavorite = true,
+            onFavoriteClick = { },
             modifier = Modifier.padding(16.dp),
         )
     }
