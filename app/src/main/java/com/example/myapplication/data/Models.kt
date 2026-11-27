@@ -6,6 +6,7 @@ data class Skill(
 )
 
 data class Project(
+    val id: Int,
     val title: String,
     val description: String,
     val technologies: List<String>,
