@@ -1,55 +1,81 @@
-# Profil développeur — Compose UI (v2)
+# Profil développeur interactif
 
 ## Description
 
-Application Android réalisée avec Kotlin et Jetpack Compose qui présente le profil d'un développeur junior : avatar avec badge de disponibilité, présentation, liste de compétences, liste de projets, zone de contact et bouton d'action « Contacter ».
+Application Android (Kotlin, Jetpack Compose, Material Design 3) qui présente le profil d'un développeur junior sous la forme d'un petit **portfolio interactif**.
 
-Cette version 2 fait évoluer la [première version](https://github.com/Fabioj377/developer-profile-compose) (fiche simple) vers une interface plus complète, avec Material Design 3 et un thème clair / sombre. Toutes les données sont locales et écrites dans le code Kotlin (`data/SampleData.kt`).
+Cette version fait évoluer le [Profil développeur v2](https://github.com/Fabioj377/developer-profile-compose-ui) : en plus de l'affichage du profil (en-tête, bio, compétences, contact), l'utilisateur peut maintenant :
+
+- **rechercher un projet** par titre, description ou technologie ;
+- **ajouter ou retirer un projet des favoris** avec un cœur (plein = favori) ;
+- **afficher uniquement les favoris** avec un bouton ;
+- voir le **nombre de projets affichés** (« 1 projet affiché », « 3 projets affichés ») ;
+- **afficher ou masquer les informations de contact**.
+
+Toutes les données sont locales (`data/SampleData.kt`). Aucune API, aucune base de données.
 
 ## Captures d'écran
 
 | Thème clair | Thème sombre |
 |---|---|
-| ![Thème clair](screenshots/profil_clair.png) | ![Thème sombre](screenshots/profil_sombre.png) |
+| ![Thème clair](screenshots/interactif_clair.png) | ![Thème sombre](screenshots/interactif_sombre.png) |
 
-## Composants Compose utilisés
+## États gérés par l'application
 
-- `Text` : nom, rôle, descriptions, titres de sections
-- `Button` : action principale « Contacter »
-- `Icon` : localisation, e-mail, badge, projets
-- `Image` : avatar (drawable vectoriel placeholder)
-- `Card` : bio, compétences, projets, contact
-- `OutlinedTextField` en lecture seule : e-mail, localisation, disponibilité
-- `Surface` : en-tête du profil, pastilles de technologies, barre d'action
+États de l'écran principal, regroupés dans `ProfileUiState` et gérés par `ProfileViewModel` :
 
-## Layouts utilisés
+- le **texte de recherche** (`searchQuery`) ;
+- le filtre **« favoris uniquement »** (`showOnlyFavorites`) ;
+- les **identifiants des projets favoris** (`favoriteProjectIds`) ;
+- la **liste de projets affichée** (`projects`), recalculée à chaque changement des trois états précédents ;
+- le **profil** (`profile`), qui contient les compétences et les informations de contact.
 
-- `Column` : structure verticale de l'écran et contenu des cartes
-- `Row` : icône + texte (localisation, titre de projet), pastilles de technologies
-- `Box` : avatar avec badge superposé en bas à droite
-- `Spacer` : espacements entre éléments
-- `Surface` : zone d'en-tête colorée et barre d'action cohérentes avec le thème
+## État local
 
-## Liste affichée avec LazyColumn / LazyRow
+> Quel état avez-vous conservé directement dans un composable et pourquoi ?
 
-- **`LazyRow`** : les compétences, affichées horizontalement avec le composable réutilisable `SkillCard` (`items(profile.skills, key = { it.name })`).
-- **`LazyColumn`** : tout le contenu défilant de l'écran, dont la liste des projets affichée avec `ProjectCard` (`items(profile.projects, key = { it.title })`). Les éléments ne sont composés que lorsqu'ils deviennent visibles, et la `key` aide Compose à identifier chaque élément.
+J'ai gardé dans `ContactCard` l'état `showContactInfo`, qui indique si les informations de contact sont visibles ou masquées (`rememberSaveable`). C'est un simple détail d'affichage qui ne concerne que cette carte : aucun autre composant n'en a besoin, il ne change ni la liste ni les favoris, donc il n'y a aucune raison de le faire passer par le ViewModel. J'ai utilisé `rememberSaveable` plutôt que `remember` pour que l'état survive à une rotation de l'écran.
 
-## Choix de thème (Material Design 3)
+## State Hoisting
 
-- **`colorScheme`** : palette indigo / teal, définie en clair (`LightColors`) et en sombre (`DarkColors`). Le thème suit le réglage du système via `isSystemInDarkTheme()`. Les couleurs dynamiques (Material You) sont désactivées pour garder une identité visuelle stable.
-- **`typography`** : styles personnalisés (`headlineMedium`, `titleLarge`, `titleMedium`, `bodyLarge`, `bodyMedium`, `labelMedium`) pour une hiérarchie claire.
-- **`shapes`** : coins arrondis `small` (8 dp, pastilles), `medium` (16 dp, cartes) et `large` (28 dp, en-tête).
-- Les composables utilisent uniquement `MaterialTheme.colorScheme / typography / shapes`, jamais de couleur en dur, donc le passage clair / sombre est automatique.
+> Pourquoi votre composable d'écran principal peut-il être considéré comme stateless ?
 
-## Quelles notions du chapitre Compose UI ai-je réutilisées ?
+`ProfileScreen` ne contient ni `remember`, ni `mutableStateOf`, ni ViewModel. Il reçoit tout ce qu'il affiche dans un seul paramètre `uiState`, et il signale les actions de l'utilisateur avec des callbacks (`onSearchQueryChange`, `onToggleFavoriteFilter`, `onFavoriteClick`, `onContactClick`). Il ne sait pas où l'état est stocké ni comment il est modifié : il affiche des valeurs et transmet des événements. C'est ce qui permet de le prévisualiser avec n'importe quel état. `ProjectCard` fonctionne de la même manière (`isFavorite` + `onFavoriteClick`).
 
-J'ai réutilisé les composants fondamentaux (`Text`, `Button`, `Icon`, `Image`, `Card`, `OutlinedTextField`), les layouts (`Column`, `Row`, `Box`, `Spacer`, `Surface`), les listes modernes (`LazyColumn` et `LazyRow` avec des composables d'item réutilisables), Material Design 3 (`colorScheme`, `typography`, `shapes`) et le thème clair / sombre. Je garde aussi les bases de la v1 : composables avec paramètres, `Modifier`, callback `onClick` et `@Preview`.
+## ViewModel
+
+> Quel est le rôle de votre ViewModel dans cette application ?
+
+`ProfileViewModel` possède l'état principal de l'écran et contient la logique associée : il filtre les projets (recherche + favoris) et expose trois actions (`onSearchQueryChange`, `onToggleFavoriteFilter`, `onFavoriteClick`). Il ne dépend d'aucun composable. Comme il survit aux changements de configuration, la recherche, le filtre et les favoris sont conservés lors d'une rotation.
+
+## StateFlow
+
+> Comment l'interface est-elle informée lorsqu'un état change ?
+
+Le ViewModel garde un `MutableStateFlow<ProfileUiState>` privé (`_uiState`) et en expose une version en lecture seule, `uiState: StateFlow<ProfileUiState>`. Quand l'utilisateur agit, l'écran appelle une fonction du ViewModel, qui publie un **nouvel** `ProfileUiState` dans le flux. Le container `ProfileContainer` collecte ce flux avec `collectAsState()` : dès qu'une nouvelle valeur est publiée, Compose recompose l'écran avec le nouvel état.
+
+```
+ProfileViewModel --(StateFlow)--> ProfileContainer --(uiState)--> ProfileScreen
+ProfileScreen --(callbacks)--> ProfileContainer --(fonctions)--> ProfileViewModel
+```
+
+## Organisation du code
+
+| Élément | Rôle |
+|---|---|
+| `data/Models.kt`, `data/SampleData.kt` | modèles (`Project` avec `id`, `Skill`, `DeveloperProfile`) et données locales |
+| `ui/ProfileUiState.kt` | classe immuable qui regroupe l'état de l'écran |
+| `ui/ProfileViewModel.kt` | possède l'état, expose le `StateFlow` et les actions |
+| `ui/ProfileContainer.kt` | récupère le ViewModel, collecte le `StateFlow`, relie le tout à l'écran |
+| `ui/ProfileScreen.kt` | écran stateless + 2 previews (états différents) |
+| `ui/components/ProjectCard.kt` | carte projet stateless avec bouton favori |
+| `ui/components/ContactCard.kt` | zone de contact avec son état local |
+| `ui/components/ProfileHeader.kt`, `SkillCard.kt` | en-tête et compétences |
+| `ui/theme/` | thème Material 3 (couleurs, typographie, formes) |
 
 ## Previews
 
-Des previews clair et sombre existent pour l'écran complet (`ProfileScreen.kt`) et pour l'en-tête (`ProfileHeader.kt`), plus une preview par carte.
+`ProfileScreen` possède deux previews qui utilisent directement le composable stateless :
 
-## Lancer le projet
-
-Ouvrir le dossier dans Android Studio, laisser Gradle se synchroniser, puis lancer sur un émulateur ou un appareil (minSdk 26).
+1. **Écran clair** : recherche vide, tous les projets, aucun favori ;
+2. **Écran sombre** : recherche « Kotlin », filtre favoris activé, deux projets favoris.
