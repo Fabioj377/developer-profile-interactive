@@ -97,6 +97,21 @@ fun ProfileScreen(
                         )
                     }
                 }
+                item {
+                    val count = uiState.projects.size
+                    Text(
+                        text = if (count > 1) "$count projets affichés" else "$count projet affiché",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                if (uiState.projects.isEmpty()) {
+                    item {
+                        Text(
+                            text = "Aucun projet ne correspond à votre recherche.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
                 items(uiState.projects, key = { it.id }) { project ->
                     ProjectCard(
                         project = project,
